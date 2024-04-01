@@ -16,19 +16,20 @@ namespace SuperMarket.Application.Features.Products.Commands
 
     public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, IResponseWrapper>
     {
-        private readonly IProductService _service;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public CreateProductCommandHandler(IProductService service, IMapper mapper)
+        public CreateProductCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _service = service;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
         public async Task<IResponseWrapper> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             var model = _mapper.Map<Product>(request.CreateRequest);
-            var newEntity = await _service.CreateProductAsync(model);
+            var newEntity = await _unitOfWork.Products.InsertAsync(model);
+            await _unitOfWork.Commit(cancellationToken);
 
             if (newEntity.Id > 0)
             {

@@ -8,22 +8,24 @@ namespace SuperMarket.Application.Features.Orders.Queries
 {
     public class GetOrdersQuery : IRequest<IResponseWrapper>
     {
+
     }
 
     public class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, IResponseWrapper>
     {
-        private readonly IOrderService _service;
+        private readonly IOrderRepository _repository;
         private readonly IMapper _mapper;
 
-        public GetOrdersQueryHandler(IOrderService service, IMapper mapper)
+        public GetOrdersQueryHandler(IOrderRepository repository, IMapper mapper)
         {
-            _service = service;
+            _repository = repository;
             _mapper = mapper;
         }
 
         public async Task<IResponseWrapper> Handle(GetOrdersQuery request, CancellationToken cancellationToken)
         {
-            var entitiesList = await _service.GetOrderListAsync();
+            var entitiesList = await _repository.GetListAsync();
+
             if (entitiesList.Count > 0)
             {
                 var modelsList = _mapper.Map<List<OrderResponse>>(entitiesList);

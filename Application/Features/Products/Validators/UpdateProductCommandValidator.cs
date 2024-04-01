@@ -6,9 +6,9 @@ namespace SuperMarket.Application.Features.Products.Validators
 {
     public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
     {
-        public UpdateProductCommandValidator(IProductService service)
+        public UpdateProductCommandValidator(IProductRepository repository)
         {
-            RuleFor(command => command.UpdateRequest).SetValidator(new UpdateProductRequestValidator(service));
+            RuleFor(command => command.UpdateRequest).SetValidator(new UpdateProductRequestValidator(repository));
         }
     }
 }

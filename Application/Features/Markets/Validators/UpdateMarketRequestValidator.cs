@@ -7,10 +7,10 @@ namespace SuperMarket.Application.Features.Markets.Validators
 {
     public class UpdateMarketRequestValidator : AbstractValidator<UpdateMarketRequest>
     {
-        public UpdateMarketRequestValidator(IMarketService marketService)
+        public UpdateMarketRequestValidator(IMarketRepository repository)
         {
             RuleFor(request => request.Id)
-                .MustAsync(async (id, ct) => await marketService.GetMarketByIdAsync(id) is Market currentMarket && currentMarket.Id == id)
+                .MustAsync(async (id, ct) => await repository.GetByIdAsync(id) is Market currentMarket && currentMarket.Id == id)
                     .WithMessage("Market does not exist.");
 
             RuleFor(request => request.Name)

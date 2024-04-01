@@ -16,19 +16,20 @@ namespace SuperMarket.Application.Features.Markets.Commands
 
     public class CreateMarketCommandHandler : IRequestHandler<CreateMarketCommand, IResponseWrapper>
     {
-        private readonly IMarketService _service;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public CreateMarketCommandHandler(IMarketService service, IMapper mapper)
+        public CreateMarketCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _service = service;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
         public async Task<IResponseWrapper> Handle(CreateMarketCommand request, CancellationToken cancellationToken)
         {
             var model = _mapper.Map<Market>(request.CreateRequest);
-            var newEntity = await _service.CreateMarketAsync(model);
+            var newEntity = await _unitOfWork.Markets.InsertAsync(model);
+            await _unitOfWork.Commit(cancellationToken);
 
             if (newEntity.Id > 0)
             {

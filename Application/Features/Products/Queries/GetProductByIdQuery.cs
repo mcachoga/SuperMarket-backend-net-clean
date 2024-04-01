@@ -13,23 +13,25 @@ namespace SuperMarket.Application.Features.Products.Queries
 
     public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, IResponseWrapper>
     {
-        private readonly IProductService _service;
+        private readonly IProductRepository _repository;
         private readonly IMapper _mapper;
 
-        public GetProductByIdQueryHandler(IProductService service, IMapper mapper)
+        public GetProductByIdQueryHandler(IProductRepository repository, IMapper mapper)
         {
-            _service = service;
+            _repository = repository;
             _mapper = mapper;
         }
 
         public async Task<IResponseWrapper> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
-            var currentEntity = await _service.GetProductByIdAsync(request.ProductId);
+            var currentEntity = await _repository.GetByIdAsync(request.ProductId);
+            
             if (currentEntity is not null)
             {
                 var model = _mapper.Map<ProductResponse>(currentEntity);
                 return await ResponseWrapper<ProductResponse>.SuccessAsync(model);
             }
+            
             return await ResponseWrapper.FailAsync("Product does not exist.");
         }
     }

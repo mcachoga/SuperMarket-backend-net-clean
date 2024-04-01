@@ -13,23 +13,25 @@ namespace SuperMarket.Application.Features.Employees.Queries
 
     public class GetMarketByIdQueryHandler : IRequestHandler<GetMarketByIdQuery, IResponseWrapper>
     {
-        private readonly IMarketService _service;
+        private readonly IMarketRepository _repository;
         private readonly IMapper _mapper;
 
-        public GetMarketByIdQueryHandler(IMarketService service, IMapper mapper)
+        public GetMarketByIdQueryHandler(IMarketRepository repository, IMapper mapper)
         {
-            _service = service;
+            _repository = repository;
             _mapper = mapper;
         }
 
         public async Task<IResponseWrapper> Handle(GetMarketByIdQuery request, CancellationToken cancellationToken)
         {
-            var currentEntity = await _service.GetMarketByIdAsync(request.MarketId);
+            var currentEntity = await _repository.GetByIdAsync(request.MarketId);
+
             if (currentEntity is not null)
             {
                 var model = _mapper.Map<MarketResponse>(currentEntity);
                 return await ResponseWrapper<MarketResponse>.SuccessAsync(model);
             }
+
             return await ResponseWrapper.FailAsync("Market does not exist.");
         }
     }

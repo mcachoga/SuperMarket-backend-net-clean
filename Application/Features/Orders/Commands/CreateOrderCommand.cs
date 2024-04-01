@@ -16,19 +16,20 @@ namespace SuperMarket.Application.Features.Orders.Commands
 
     public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, IResponseWrapper>
     {
-        private readonly IOrderService _service;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public CreateOrderCommandHandler(IOrderService service, IMapper mapper)
+        public CreateOrderCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _service = service;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
         public async Task<IResponseWrapper> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             var model = _mapper.Map<Order>(request.CreateRequest);
-            var newEntity = await _service.CreateOrderAsync(model);
+            var newEntity = await _unitOfWork.Orders.InsertAsync(model);
+            await _unitOfWork.Commit(cancellationToken);
 
             if (newEntity.Id > 0)
             {

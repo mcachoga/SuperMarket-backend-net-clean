@@ -6,9 +6,9 @@ namespace SuperMarket.Application.Features.Markets.Validators
 {
     public class UpdateMarketCommandValidator : AbstractValidator<UpdateMarketCommand>
     {
-        public UpdateMarketCommandValidator(IMarketService service)
+        public UpdateMarketCommandValidator(IMarketRepository repository)
         {
-            RuleFor(command => command.UpdateRequest).SetValidator(new UpdateMarketRequestValidator(service));
+            RuleFor(command => command.UpdateRequest).SetValidator(new UpdateMarketRequestValidator(repository));
         }
     }
 }

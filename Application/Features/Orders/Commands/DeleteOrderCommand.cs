@@ -11,20 +11,22 @@ namespace SuperMarket.Application.Features.Orders.Commands
 
     public class DeleteOrderCommandHandler : IRequestHandler<DeleteOrderCommand, IResponseWrapper>
     {
-        private readonly IOrderService _service;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteOrderCommandHandler(IOrderService service)
+        public DeleteOrderCommandHandler(IUnitOfWork unitOfWork)
         {
-            _service = service;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IResponseWrapper> Handle(DeleteOrderCommand request, CancellationToken cancellationToken)
         {
-            var currentEntity = await _service.GetOrderByIdAsync(request.OrderId);
+            var currentEntity = await _unitOfWork.Orders.GetByIdAsync(request.OrderId);
             
             if (currentEntity is not null)
             {
-                var marketId = await _service.DeleteOrderAsync(currentEntity);
+                var marketId = await _unitOfWork.Orders.DeleteAsync(currentEntity);
+                await _unitOfWork.Commit(cancellationToken);
+
                 return await ResponseWrapper<int>.SuccessAsync(marketId, "Order entry deleted successfully.");
             }
             else

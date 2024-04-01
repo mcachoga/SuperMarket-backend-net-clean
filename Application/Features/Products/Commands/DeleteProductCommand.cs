@@ -11,20 +11,22 @@ namespace SuperMarket.Application.Features.Products.Commands
 
     public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand, IResponseWrapper>
     {
-        private readonly IProductService _service;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteProductCommandHandler(IProductService service)
+        public DeleteProductCommandHandler(IUnitOfWork unitOfWork)
         {
-            _service = service;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IResponseWrapper> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
-            var currentEntity = await _service.GetProductByIdAsync(request.ProductId);
+            var currentEntity = await _unitOfWork.Products.GetByIdAsync(request.ProductId);
             
             if (currentEntity is not null)
             {
-                var marketId = await _service.DeleteProductAsync(currentEntity);
+                var marketId = await _unitOfWork.Products.DeleteAsync(currentEntity);
+                await _unitOfWork.Commit(cancellationToken);
+
                 return await ResponseWrapper<int>.SuccessAsync(marketId, "Product entry deleted successfully.");
             }
             else

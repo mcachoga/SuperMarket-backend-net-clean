@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SuperMarket.Application.Services;
 using SuperMarket.Application.Services.Identity;
 using SuperMarket.Infrastructure.Context;
+using SuperMarket.Infrastructure.Repositories;
 using SuperMarket.Infrastructure.Services;
 using SuperMarket.Infrastructure.Services.Identity;
 using System.Reflection;
@@ -35,11 +36,18 @@ namespace SuperMarket.Infrastructure.Configuration
 
         public static IServiceCollection AddCatalogServices(this IServiceCollection services)
         {
-            services.AddTransient<IMarketService, MarketService>();
-            services.AddTransient<IProductService, ProductService>();
+            services.AddTransient(typeof(IRepositoryAsync<>), typeof(RepositoryAsync<>));
+            services.AddTransient<IMarketRepository, MarketRepository>();
+            services.AddTransient<IProductRepository, ProductRepository>();
 
-            services.AddTransient<IOrderService, OrderService>()
+            // Creamos un acceso al contexto para poder obtener el userId activo para agregarlo 
+            // automaticamente al crear un Order.
+            // Solo se usa en el repositorio de Orders, los demás no lo requiren, por lo que no se
+            // le asigna.
+            services.AddTransient<IOrderRepository, OrderRepository>()
                 .AddHttpContextAccessor().AddScoped<ICurrentUserService, CurrentUserService>();
+
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
 
             return services;
         }

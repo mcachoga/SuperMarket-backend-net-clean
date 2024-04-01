@@ -8,7 +8,7 @@ namespace SuperMarket.Application.Features.Orders.Validators
 {
     public class CreateOrderRequestValidator : AbstractValidator<CreateOrderRequest>
     {
-        public CreateOrderRequestValidator(IOrderService orderService, IProductService productService, IMarketService marketService)
+        public CreateOrderRequestValidator(IUnitOfWork unitOfWork)
         {
             RuleFor(request => request.MarketId)
                 .NotEmpty()
@@ -16,7 +16,7 @@ namespace SuperMarket.Application.Features.Orders.Validators
                 .GreaterThan(0)
                     .WithMessage("{PropertyName} should be greater than 0.")
                 .MustAsync(async (id, ct) =>
-                    await marketService.GetMarketByIdAsync(id) is Market currentMarket && currentMarket.Id == id)
+                    await unitOfWork.Markets.GetByIdAsync(id) is Market currentMarket && currentMarket.Id == id)
                     .WithMessage("Market does not exist.");
 
             RuleFor(request => request.ProductId)
@@ -25,7 +25,7 @@ namespace SuperMarket.Application.Features.Orders.Validators
                 .GreaterThan(0)
                     .WithMessage("{PropertyName} should be greater than 0.")
                 .MustAsync(async (id, ct) =>
-                    await productService.GetProductByIdAsync(id) is Product currentProduct && currentProduct.Id == id)
+                    await unitOfWork.Products.GetByIdAsync(id) is Product currentProduct && currentProduct.Id == id)
                     .WithMessage("Product does not exist.");
 
             RuleFor(request => request.Price)
@@ -46,7 +46,7 @@ namespace SuperMarket.Application.Features.Orders.Validators
                     if (x.MarketId == 0 || x.ProductId == 0 || x.Price == 0)
                         return true;
 
-                    var orders = await orderService.GetOrderListAsync();
+                    var orders = await unitOfWork.Orders.GetListAsync();
                     orders = orders.Where(q => q.ProductId == x.ProductId && q.MarketId != x.MarketId && q.Price < x.Price).ToList();
 
                     return !orders.Any();

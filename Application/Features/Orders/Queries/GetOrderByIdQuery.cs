@@ -13,18 +13,19 @@ namespace SuperMarket.Application.Features.Orders.Queries
 
     public class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, IResponseWrapper>
     {
-        private readonly IOrderService _service;
+        private readonly IOrderRepository _repository;
         private readonly IMapper _mapper;
 
-        public GetOrderByIdQueryHandler(IOrderService service, IMapper mapper)
+        public GetOrderByIdQueryHandler(IOrderRepository repository, IMapper mapper)
         {
-            _service = service;
+            _repository = repository;
             _mapper = mapper;
         }
 
         public async Task<IResponseWrapper> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
         {
-            var currentEntity = await _service.GetOrderByIdAsync(request.OrderId);
+            var currentEntity = await _repository.GetByIdAsync(request.OrderId);
+            
             if (currentEntity is not null)
             {
                 var model = _mapper.Map<OrderResponse>(currentEntity);

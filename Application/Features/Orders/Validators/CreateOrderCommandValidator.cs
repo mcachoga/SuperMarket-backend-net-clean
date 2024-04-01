@@ -6,9 +6,9 @@ namespace SuperMarket.Application.Features.Orders.Validators
 {
     public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
     {
-        public CreateOrderCommandValidator(IOrderService orderService, IProductService productService, IMarketService marketService)
+        public CreateOrderCommandValidator(IUnitOfWork unitOfWork)
         {
-            RuleFor(command => command.CreateRequest).SetValidator(new CreateOrderRequestValidator(orderService, productService, marketService));
+            RuleFor(command => command.CreateRequest).SetValidator(new CreateOrderRequestValidator(unitOfWork));
         }
     }
 }

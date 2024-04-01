@@ -14,9 +14,7 @@ namespace SuperMarket.WebApi.Controllers.Auth
         [AllowAnonymous]
         public async Task<IActionResult> GetTokenAsync([FromBody] TokenRequest tokenRequest)
         {
-            LogContext.PushProperty("Route", "api/auth/get-token");
-            LogContext.PushProperty("UserId", "");
-            Log.Logger.Information("GetTokenAsync");
+            _logger.LogInformation("GetTokenAsync");
 
             var response = await MediatorSender.Send(new GetTokenQuery { TokenRequest = tokenRequest });
             

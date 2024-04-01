@@ -7,11 +7,11 @@ namespace SuperMarket.Application.Features.Products.Validators
 {
     public class UpdateProductRequestValidator : AbstractValidator<UpdateProductRequest>
     {
-        public UpdateProductRequestValidator(IProductService service)
+        public UpdateProductRequestValidator(IProductRepository repository)
         {
             RuleFor(request => request.Id)
                 .MustAsync(async (id, ct) => 
-                    await service.GetProductByIdAsync(id) is Product currentMarket && currentMarket.Id == id)
+                    await repository.GetByIdAsync(id) is Product currentMarket && currentMarket.Id == id)
                 .WithMessage("Product does not exist.");
 
             RuleFor(request => request.Name)

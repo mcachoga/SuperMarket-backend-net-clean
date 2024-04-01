@@ -15,18 +15,18 @@ namespace SuperMarket.Application.Features.Products.Commands
 
     public class UUpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, IResponseWrapper>
     {
-        private readonly IProductService _service;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public UUpdateProductCommandHandler(IProductService service, IMapper mapper)
+        public UUpdateProductCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _service = service;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
         public async Task<IResponseWrapper> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
-            var currentEntity = await _service.GetProductByIdAsync(request.UpdateRequest.Id);
+            var currentEntity = await _unitOfWork.Products.GetByIdAsync(request.UpdateRequest.Id);
 
             if (currentEntity is not null)
             {
@@ -34,7 +34,9 @@ namespace SuperMarket.Application.Features.Products.Commands
                 currentEntity.Barcode = request.UpdateRequest.Barcode;
                 currentEntity.Description = request.UpdateRequest.Description;
 
-                var updatedEntity = await _service.UpdateProductAsync(currentEntity);
+                var updatedEntity = await _unitOfWork.Products.UpdateAsync(currentEntity);
+                await _unitOfWork.Commit(cancellationToken);
+
                 var model = _mapper.Map<ProductResponse>(updatedEntity);
 
                 return await ResponseWrapper<ProductResponse>.SuccessAsync(model, "Product updated successfully.");

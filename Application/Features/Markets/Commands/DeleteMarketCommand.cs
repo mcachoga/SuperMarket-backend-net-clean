@@ -11,19 +11,20 @@ namespace SuperMarket.Application.Features.Markets.Commands
 
     public class DeleteMarketCommandHandler : IRequestHandler<DeleteMarketCommand, IResponseWrapper>
     {
-        private readonly IMarketService _service;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteMarketCommandHandler(IMarketService service)
+        public DeleteMarketCommandHandler(IUnitOfWork unitOfWork)
         {
-            _service = service;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IResponseWrapper> Handle(DeleteMarketCommand request, CancellationToken cancellationToken)
         {
-            var currentEntity = await _service.GetMarketByIdAsync(request.MarketId);
+            var currentEntity = await _unitOfWork.Markets.GetByIdAsync(request.MarketId);
             if (currentEntity is not null)
             {
-                var marketId = await _service.DeleteMarketAsync(currentEntity);
+                var marketId = await _unitOfWork.Markets.DeleteAsync(currentEntity);
+                await _unitOfWork.Commit(cancellationToken);
                 return await ResponseWrapper<int>.SuccessAsync(marketId, "Market entry deleted successfully.");
             }
             else

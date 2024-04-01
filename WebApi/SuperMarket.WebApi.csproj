@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Infrastructure..Logging\SuperMarket.Infrastructure.Logging.csproj" />
+    <ProjectReference Include="..\Infrastructure.Logger\SuperMarket.Infrastructure.Logging.csproj" />
     <ProjectReference Include="..\Infrastructure\SuperMarket.Infrastructure.csproj" />
   </ItemGroup>
 

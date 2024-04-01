@@ -1,50 +1,22 @@
-using SuperMarket.Application;
-using SuperMarket.Infrastructure;
+using SuperMarket.Infrastructure.Extensions.Logging;
 using SuperMarket.WebApi.Configuration;
-using SuperMarket.WebApi.Middlewares;
-using SuperMarket.Infrastructure.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// To allow client apps to connect with the api
-builder.Services.AddCors(o =>
-    o.AddPolicy("ABC Admin", builder =>
+builder.Host
+    .UseSerilog()
+    .ConfigureAppConfiguration((context, config) =>
     {
-        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-    }
-));
+        // En esta configuración se debería de asignar la información de Azure.
+        // Tambien se podrían asignar los secretos de usuario (actualmente todo se define en appsettings),
+        // pero no debería de estar ahí por seguridad:
+        //config.AddUserSecrets(Assembly.GetEntryAssembly(), optional: true);
+        //config.AddCustomConfigurationAzure(context);
+    });
 
-builder.Services.AddControllers();
-builder.Services.AddDatabase(builder.Configuration);
-builder.Services.AddIdentitySettings();
-builder.Services.AddApplicationServices();
-builder.Services.AddJwtAuthentication(builder.Services.GetApplicationSettings(builder.Configuration));
-builder.Services.AddIdentityServices();
-builder.Services.AddEmployeeService();
-builder.Services.AddInfrastructureDependencies();
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.RegisterSwagger();
+var startup = new Startup(builder.Configuration, builder.Environment);
+startup.ConfigureServices(builder.Services);
 
 var app = builder.Build();
-
-app.SeedDatabase();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-app.UseCors("ABC Admin");
-
-app.UseAuthorization();
-
-app.UseMiddleware<ErrorHandlingMiddleware>();
-
-app.MapControllers();
-
+startup.Configure(app);
 app.Run();

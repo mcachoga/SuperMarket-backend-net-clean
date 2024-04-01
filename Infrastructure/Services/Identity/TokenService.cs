@@ -20,7 +20,9 @@ namespace SuperMarket.Infrastructure.Services.Identity
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly AppConfiguration _appConfiguration;
 
-        public TokenService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, 
+        public TokenService(
+            UserManager<ApplicationUser> userManager, 
+            RoleManager<ApplicationRole> roleManager, 
             IOptions<AppConfiguration> appConfiguration)
         {
             _userManager = userManager;
@@ -32,6 +34,7 @@ namespace SuperMarket.Infrastructure.Services.Identity
         {
             // Validate user
             var user = await _userManager.FindByEmailAsync(tokenRequest.Email);
+            
             // Check user
             if (user is null)
             {
@@ -43,25 +46,30 @@ namespace SuperMarket.Infrastructure.Services.Identity
             {
                 return await ResponseWrapper<TokenResponse>.FailAsync("User not active. Please contact the administrator");
             }
+            
             // Chcek email if email confirmed
             if (!user.EmailConfirmed)
             {
                 return await ResponseWrapper<TokenResponse>.FailAsync("Email not confirmed.");
             }
+            
             // Check password
             var isPaswordValid = await _userManager.CheckPasswordAsync(user, tokenRequest.Password);
             if (!isPaswordValid)
             {
                 return await ResponseWrapper<TokenResponse>.FailAsync("Invalid Credentials.");
             }
+            
             // generate refresh token
             user.RefreshToken = GenerateRefreshToken();
             user.RefreshTokenExpiryDate = DateTime.Now.AddDays(7);
+            
             // Updated user
             await _userManager.UpdateAsync(user);
 
             // generate new token
             var token = await GenerateJWTAsync(user);
+            
             // return
             var response = new TokenResponse
             {
@@ -75,17 +83,18 @@ namespace SuperMarket.Infrastructure.Services.Identity
 
         public async Task<ResponseWrapper<TokenResponse>> GetRefreshTokenAsync(RefreshTokenRequest refreshTokenRequest)
         {
-
             if (refreshTokenRequest is null)
             {
                 return await ResponseWrapper<TokenResponse>.FailAsync("Invalid Client Token.");
             }
+
             var userPrincipal = GetPrincipalFromExpiredToken(refreshTokenRequest.Token);
             var userEmail = userPrincipal.FindFirstValue(ClaimTypes.Email);
             var user = await _userManager.FindByEmailAsync(userEmail);
             
             if (user is null)
                 return await ResponseWrapper<TokenResponse>.FailAsync("User Not Found.");
+            
             if (user.RefreshToken != refreshTokenRequest.RefreshToken || user.RefreshTokenExpiryDate <= DateTime.Now)
                 return await ResponseWrapper<TokenResponse>.FailAsync("Invalid Client Token.");
             
@@ -99,6 +108,7 @@ namespace SuperMarket.Infrastructure.Services.Identity
                 RefreshToken = user.RefreshToken, 
                 RefreshTokenExpiryTime = user.RefreshTokenExpiryDate 
             };
+
             return await ResponseWrapper<TokenResponse>.SuccessAsync(response);
         }
 
@@ -123,14 +133,17 @@ namespace SuperMarket.Infrastructure.Services.Identity
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(_appConfiguration.TokenExpiryInMinutes),
                 signingCredentials: signingCredentials);
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var encryptedToken = tokenHandler.WriteToken(token);
+
             return encryptedToken;
         }
 
         private SigningCredentials GetSigningCredentials()
         {
             var secret = Encoding.UTF8.GetBytes(_appConfiguration.Secret);
+            
             return new SigningCredentials(new SymmetricSecurityKey(secret), SecurityAlgorithms.HmacSha256);
         }
 
@@ -175,11 +188,12 @@ namespace SuperMarket.Infrastructure.Services.Identity
                 RoleClaimType = ClaimTypes.Role,
                 ClockSkew = TimeSpan.Zero
             };
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
+            
             if (securityToken is not JwtSecurityToken jwtSecurityToken 
-                || !jwtSecurityToken.Header.Alg
-                .Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
             {
                 throw new SecurityTokenException("Invalid token");
             }

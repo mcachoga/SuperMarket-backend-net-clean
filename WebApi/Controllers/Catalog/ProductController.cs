@@ -12,7 +12,7 @@ namespace SuperMarket.WebApi.Controllers.Catalog
     {
         [HttpPost]
         [MustHavePermission(AppFeature.Products, AppAction.Create)]
-        public async Task<IActionResult> CreateEmployee([FromBody] CreateProductRequest createProduct)
+        public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest createProduct)
         {
             var response = await MediatorSender.Send(new CreateProductCommand { CreateRequest = createProduct });
             
@@ -26,7 +26,7 @@ namespace SuperMarket.WebApi.Controllers.Catalog
 
         [HttpPut]
         [MustHavePermission(AppFeature.Products, AppAction.Update)]
-        public async Task<IActionResult> UpdateEmployee([FromBody] UpdateProductRequest updateProduct)
+        public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductRequest updateProduct)
         {
             var response = await MediatorSender.Send(new UpdateProductCommand { UpdateRequest = updateProduct });
            
@@ -40,7 +40,7 @@ namespace SuperMarket.WebApi.Controllers.Catalog
 
         [HttpDelete("{productId}")]
         [MustHavePermission(AppFeature.Products, AppAction.Delete)]
-        public async Task<IActionResult> DeleteEmployee(int productId)
+        public async Task<IActionResult> DeleteProduct(int productId)
         {
             var response = await MediatorSender.Send(new DeleteProductCommand { ProductId = productId });
             

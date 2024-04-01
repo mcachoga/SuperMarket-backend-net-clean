@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Serilog.Context;
 using SuperMarket.Application.Features.Employees.Queries;
 using SuperMarket.Application.Features.Markets.Commands;
 using SuperMarket.Common.Authorization;
@@ -14,6 +15,11 @@ namespace SuperMarket.WebApi.Controllers.Catalog
         [MustHavePermission(AppFeature.Markets, AppAction.Create)]
         public async Task<IActionResult> CreateMarket([FromBody] CreateMarketRequest createMarket)
         {
+            LogContext.PushProperty("Route", "api/market/CreateMarket");
+            LogContext.PushProperty("User", "dfdfdfdfdf");
+            base._logger.LogInformation("Mensaje de prueba");
+
+
             var response = await MediatorSender.Send(new CreateMarketCommand { CreateRequest = createMarket });
             
             if (response.IsSuccessful)
@@ -56,6 +62,10 @@ namespace SuperMarket.WebApi.Controllers.Catalog
         [MustHavePermission(AppFeature.Markets, AppAction.Read)]
         public async Task<IActionResult> GetMarketList()
         {
+            LogContext.PushProperty("Route", "api/market/GetMarketList");
+            LogContext.PushProperty("UserId", "dfdfdfdfdf");
+            _logger.LogInformation("Mensaje de prueba de marketList");
+
             var response = await MediatorSender.Send(new GetMarketsQuery());
             
             if (response.IsSuccessful)

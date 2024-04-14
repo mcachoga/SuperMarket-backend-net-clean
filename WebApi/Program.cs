@@ -4,7 +4,7 @@ using SuperMarket.WebApi.Configuration;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host
-    .UseSerilog()
+    .UseSerilog(builder.Configuration)
     .ConfigureAppConfiguration((context, config) =>
     {
         // En esta configuración se debería de asignar la información de Azure.
@@ -14,11 +14,14 @@ builder.Host
         //config.AddCustomConfigurationAzure(context);
     });
 
+
 var startup = new Startup(builder.Configuration, builder.Environment);
 startup.ConfigureServices(builder.Services);
 
 var app = builder.Build();
 app.UseCustomSerilog();
 
+app.Logger.LogInformation("SuperMarket API Configuration Starting...");
 startup.Configure(app);
+app.Logger.LogInformation("SuperMarket API Complete.");
 app.Run();

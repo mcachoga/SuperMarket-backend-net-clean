@@ -1,4 +1,5 @@
-﻿using SuperMarket.WebApi.Configuration.Middlewares;
+﻿using SuperMarket.Infrastructure.Extensions.Logging;
+using SuperMarket.WebApi.Configuration.Middlewares;
 
 namespace SuperMarket.WebApi.Configuration
 {
@@ -13,6 +14,7 @@ namespace SuperMarket.WebApi.Configuration
 
         public static void UseCustomApi(this IApplicationBuilder app, IConfiguration configuration)
         {
+            app.UseMiddleware<RequestSerilogMiddleware>();
             app.UseMiddleware<ErrorHandlingMiddleware>();
 
             app.UseEndpoints(endpoints =>

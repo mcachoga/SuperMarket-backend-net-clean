@@ -1,5 +1,5 @@
-﻿using SuperMarket.Common.Authorization;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using SuperMarket.Infrastructure.Framework.Security;
 
 namespace SuperMarket.WebApi.Configuration.Permissions
 {

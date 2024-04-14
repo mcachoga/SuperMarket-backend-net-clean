@@ -1,5 +1,5 @@
 ﻿using Microsoft.OpenApi.Models;
-using SuperMarket.Infrastructure.Extensions.Configurations;
+using SuperMarket.Infrastructure.Framework.Configurations;
 
 namespace SuperMarket.WebApi.Configuration
 {

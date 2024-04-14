@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SuperMarket.Application.Features.Orders.Commands;
 using SuperMarket.Application.Features.Orders.Queries;
-using SuperMarket.Common.Authorization;
-using SuperMarket.Common.Requests.Orders;
-using SuperMarket.WebApi.Security;
+using SuperMarket.Infrastructure.Framework.Security;
+using SuperMarket.Shared.Requests.Catalog;
 
 namespace SuperMarket.WebApi.Controllers.Catalog
 {
@@ -52,7 +51,7 @@ namespace SuperMarket.WebApi.Controllers.Catalog
             return NotFound(response);
         }
 
-        [HttpGet]
+        [HttpGet("all")]
         [MustHavePermission(AppFeature.Orders, AppAction.Read)]
         public async Task<IActionResult> GetOrderList()
         {

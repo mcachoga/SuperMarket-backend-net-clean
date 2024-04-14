@@ -7,9 +7,10 @@ namespace SuperMarket.WebApi.Controllers
     public class BaseGenericController<T> : ControllerBase
     {
         private ISender _sender;
-        public ISender MediatorSender => _sender ??= HttpContext.RequestServices.GetService<ISender>();
-
         private ILogger<T> _loggerInstance;
-        protected ILogger<T> _logger => _loggerInstance ??= HttpContext.RequestServices.GetService<ILogger<T>>();
+
+        public ISender MediatorSender => _sender ??= HttpContext.RequestServices.GetService<ISender>();
+        
+        protected ILogger<T> Logger => _loggerInstance ??= HttpContext.RequestServices.GetService<ILogger<T>>();
     }
 }

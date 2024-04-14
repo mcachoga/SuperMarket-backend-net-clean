@@ -18,8 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Infrastructure.Logger\SuperMarket.Infrastructure.Logging.csproj" />
-    <ProjectReference Include="..\Infrastructure\SuperMarket.Infrastructure.csproj" />
+    <ProjectReference Include="..\Infrastructure\Extensions\Logging\SuperMarket.Infrastructure.Logging.csproj" />
+    <ProjectReference Include="..\Infrastructure\Framework\SuperMarket.Infrastructure.csproj" />
+    <ProjectReference Include="..\Persistence\App\SuperMarket.Persistence.csproj" />
+    <ProjectReference Include="..\Persistence\Identity\SuperMarket.Persistence.Identity.csproj" />
   </ItemGroup>
 
 </Project>

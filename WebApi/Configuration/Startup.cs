@@ -20,13 +20,12 @@
 
         public void Configure(IApplicationBuilder app)
         {
-            app.UseCustomDependencies();
+            app.UseCustomDependencies(Configuration);
             app.UseHttpsRedirection();
-            app.UseAuthorization();
             app.UseRouting();
+            app.UseAuthorization();
             app.UseCustomCors(Configuration);
             app.UseCustomSwagger(Configuration);
-            app.UseCustomSecurity(Configuration);
             app.UseCustomApi(Configuration);
         }
     }

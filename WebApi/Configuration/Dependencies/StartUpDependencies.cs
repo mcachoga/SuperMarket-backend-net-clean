@@ -1,6 +1,11 @@
-﻿using SuperMarket.Application.Configuration;
-using SuperMarket.Infrastructure.Configuration;
-using SuperMarket.Infrastructure.Context;
+﻿using MediatR;
+using SuperMarket.Application.Configuration;
+using SuperMarket.Application.Identity.Configuration;
+using SuperMarket.Infrastructure.Framework.Validations;
+using SuperMarket.Persistence.Configuration;
+using SuperMarket.Persistence.Context;
+using SuperMarket.Persistence.Identity.Configuration;
+using SuperMarket.Persistence.Identity.Context;
 
 namespace SuperMarket.WebApi.Configuration
 {
@@ -8,20 +13,27 @@ namespace SuperMarket.WebApi.Configuration
     {
         public static void AddCustomConfigurationDependencies(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddApplicationServices();
+            services.AddApplicationDependencies();
+            services.AddApplicationIdentityDependencies();
+
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehaviour<,>));
 
             services.AddDatabase(configuration);
+            services.AddDatabaseIdentity(configuration);
+
             services.AddIdentityServices();
-            services.AddCatalogServices();
-            services.AddInfrastructureDependencies();
+            services.AddCatalogServices(configuration);
         }
 
-        public static void UseCustomDependencies(this IApplicationBuilder app)
+        public static void UseCustomDependencies(this IApplicationBuilder app, IConfiguration configuration)
         {
-            app.SeedDatabase();
-        }
+            var executeSeedingData = configuration.GetValue<bool>("ExecuteSeedingData");
 
-        private static IApplicationBuilder SeedDatabase(this IApplicationBuilder app)
+            app.InitializeDatabase(executeSeedingData);
+            app.InitializeDatabaseIdentity(executeSeedingData);
+
+        }
+        private static IApplicationBuilder InitializeDatabase(this IApplicationBuilder app, bool applySeedData)
         {
             using var serviceScope = app.ApplicationServices.CreateScope();
 
@@ -29,7 +41,21 @@ namespace SuperMarket.WebApi.Configuration
 
             foreach (var seeder in seeders)
             {
-                seeder.SeedDatabaseAsync().GetAwaiter().GetResult();
+                seeder.ConfigureDatabaseAsync(applySeedData).GetAwaiter().GetResult();
+            }
+
+            return app;
+        }
+
+        private static IApplicationBuilder InitializeDatabaseIdentity(this IApplicationBuilder app, bool applySeedData)
+        {
+            using var serviceScope = app.ApplicationServices.CreateScope();
+
+            var seeders = serviceScope.ServiceProvider.GetServices<ApplicationIdentityDbSeeder>();
+
+            foreach (var seeder in seeders)
+            {
+                seeder.ConfigureDatabaseAsync(applySeedData).GetAwaiter().GetResult();
             }
 
             return app;

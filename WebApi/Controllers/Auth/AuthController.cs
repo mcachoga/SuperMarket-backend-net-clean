@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Serilog;
-using Serilog.Context;
-using SuperMarket.Application.Features.Identity.Token.Queries;
-using SuperMarket.Common.Requests.Identity;
+using SuperMarket.Application.Features.Auth.Queries;
+using SuperMarket.Shared.Requests.Identity;
 
 namespace SuperMarket.WebApi.Controllers.Auth
 {
@@ -14,17 +12,15 @@ namespace SuperMarket.WebApi.Controllers.Auth
         [AllowAnonymous]
         public async Task<IActionResult> GetTokenAsync([FromBody] TokenRequest tokenRequest)
         {
-            _logger.LogInformation("GetTokenAsync");
+            Logger.LogInformation("GetTokenAsync -> Con _logger");
 
             var response = await MediatorSender.Send(new GetTokenQuery { TokenRequest = tokenRequest });
             
             if (response.IsSuccessful)
             {
-                Log.Logger.Information("GetTokenAsync OK");
                 return Ok(response);
             }
 
-            Log.Logger.Information("GetTokenAsync KO");
             return BadRequest(response);
         }
 

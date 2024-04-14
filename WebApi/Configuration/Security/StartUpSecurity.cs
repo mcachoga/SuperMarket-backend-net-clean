@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using SuperMarket.Application.Configuration;
-using SuperMarket.Common.Authorization;
-using SuperMarket.Common.Responses.Wrappers;
-using SuperMarket.Infrastructure.Context;
-using SuperMarket.Infrastructure.Models;
+using SuperMarket.Domain.Identity;
+using SuperMarket.Infrastructure.Framework.Responses;
+using SuperMarket.Infrastructure.Framework.Security;
+using SuperMarket.Persistence.Identity.Configuration;
+using SuperMarket.Persistence.Identity.Context;
 using SuperMarket.WebApi.Configuration.Permissions;
 using System.Net;
 using System.Reflection;
@@ -33,14 +33,14 @@ namespace SuperMarket.WebApi.Configuration
                     options.Password.RequireUppercase = false;
                     options.User.RequireUniqueEmail = true;
                 })
-                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddEntityFrameworkStores<ApplicationIdentityDbContext>()
                 .AddDefaultTokenProviders();
 
             // Configuración de Jwt
-            var applicationSettingsConfiguration = configuration.GetSection(nameof(AppConfiguration));
-            services.Configure<AppConfiguration>(applicationSettingsConfiguration);
+            var applicationSettingsConfiguration = configuration.GetSection(nameof(JwtConfiguration));
+            services.Configure<JwtConfiguration>(applicationSettingsConfiguration);
 
-            var jwtSettings = applicationSettingsConfiguration.Get<AppConfiguration>();
+            var jwtSettings = applicationSettingsConfiguration.Get<JwtConfiguration>();
 
             var key = Encoding.ASCII.GetBytes(jwtSettings.Secret);
             services
@@ -117,11 +117,6 @@ namespace SuperMarket.WebApi.Configuration
                     }
                 }
             });
-        }
-
-        public static void UseCustomSecurity(this IApplicationBuilder app, IConfiguration configuration)
-        {
-            app.UseAuthorization();
         }
     }
 }
